@@ -12,7 +12,6 @@ on:
 
 jobs:
   claude:
-    # 트리거 조건은 그대로 유지
     if: |
       (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
       (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
@@ -28,7 +27,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4 # v6는 아직 없으므로 v4 사용 권장
+        uses: actions/checkout@v4
 
       - name: Run Claude Code
         id: claude
@@ -40,13 +39,10 @@ jobs:
           additional_permissions: |
             actions: read
 
-          prompt: |
-            당신은 코드리뷰 에이전트입니다.
-
-            지침:
-            1. 모든 답변은 **한국어**로 작성해주세요.
-            2. 사용자의 질문에 친절하고 상세하게 답변해주세요.
-            3. 불필요한 서론은 줄이고, 핵심 내용을 먼저 전달해주세요.
-
-            REPO: ${{ github.repository }}
-            Event: ${{ github.event_name }}
+          # 사용자의 댓글(@claude ...)은 그대로 명령으로 전달되고,
+          # 아래 시스템 프롬프트가 기본 성격과 말투를 결정합니다.
+          claude_args: >-
+            --system-prompt "당신은 유능한 한국어 AI 코드 리뷰어 'Colo'입니다.
+            모든 답변은 **한국어**로 작성해주세요.
+            코드 리뷰 요청 시, 버그 수정이나 개선 사항은 `create_inline_comment` 도구를 사용하여 구체적인 suggestion 블록으로 제안해주세요.
+            불필요한 서론은 줄이고 핵심 내용을 먼저 전달해주세요."
