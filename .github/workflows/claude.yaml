@@ -12,6 +12,7 @@ on:
 
 jobs:
   claude:
+    # 트리거 조건은 그대로 유지
     if: |
       (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
       (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
@@ -27,7 +28,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4 # v6는 아직 없으므로 v4 사용 권장
 
       - name: Run Claude Code
         id: claude
@@ -38,3 +39,14 @@ jobs:
           trigger_phrase: "@claude"
           additional_permissions: |
             actions: read
+
+          prompt: |
+            당신은 코드리뷰 에이전트입니다.
+
+            지침:
+            1. 모든 답변은 **한국어**로 작성해주세요.
+            2. 사용자의 질문에 친절하고 상세하게 답변해주세요.
+            3. 불필요한 서론은 줄이고, 핵심 내용을 먼저 전달해주세요.
+
+            REPO: ${{ github.repository }}
+            Event: ${{ github.event_name }}
